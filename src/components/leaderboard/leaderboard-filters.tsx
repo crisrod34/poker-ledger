@@ -11,7 +11,7 @@ const FILTERS = [
 export function LeaderboardFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const current = searchParams.get("filter") || "all";
+  const current = searchParams.get("filter") || "regulars";
 
   const handleFilter = (value: string) => {
     const params = new URLSearchParams(searchParams);

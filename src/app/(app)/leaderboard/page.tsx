@@ -80,11 +80,12 @@ export default async function LeaderboardPage({
   searchParams: Promise<{ filter?: string }>;
 }) {
   const { filter } = await searchParams;
-  const leaderboard = await getLeaderboard(filter);
+  const activeFilter = filter || "regulars";
+  const leaderboard = await getLeaderboard(activeFilter);
 
-  const subtitle = filter === "regulars"
+  const subtitle = activeFilter === "regulars"
     ? "Regulars only"
-    : filter === "guests"
+    : activeFilter === "guests"
       ? "Guests only"
       : "All-time poker standings";
 
