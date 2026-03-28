@@ -88,8 +88,8 @@ export function ComparisonView({ players, allSessionPlayers }: Props) {
   return (
     <div className="space-y-6">
       {/* Player selectors */}
-      <div className="grid grid-cols-2 gap-4">
-        <Select value={player1Id || undefined} onValueChange={(v) => v && setPlayer1Id(v)}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <Select value={player1Id} onValueChange={(v) => v && setPlayer1Id(v)}>
           <SelectTrigger>
             <SelectValue placeholder="Select player 1">
               {players.find((p) => p.id === player1Id)?.name}
@@ -101,7 +101,7 @@ export function ComparisonView({ players, allSessionPlayers }: Props) {
             ))}
           </SelectContent>
         </Select>
-        <Select value={player2Id || undefined} onValueChange={(v) => v && setPlayer2Id(v)}>
+        <Select value={player2Id} onValueChange={(v) => v && setPlayer2Id(v)}>
           <SelectTrigger>
             <SelectValue placeholder="Select player 2">
               {players.find((p) => p.id === player2Id)?.name}
@@ -140,17 +140,17 @@ export function ComparisonView({ players, allSessionPlayers }: Props) {
                 </h3>
                 <div className="flex items-center justify-center gap-4 mb-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-emerald-400">{comparison.h2h.p1Wins}</div>
+                    <div className={`text-2xl font-bold ${comparison.h2h.p1Wins >= comparison.h2h.p2Wins && comparison.h2h.p1Wins > 0 ? "text-emerald-400" : "text-muted-foreground"}`}>{comparison.h2h.p1Wins}</div>
                     <div className="text-xs text-muted-foreground">{p1Name}</div>
                   </div>
                   <div className="text-xs text-muted-foreground">-</div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{comparison.h2h.ties}</div>
+                    <div className="text-2xl font-bold text-muted-foreground">{comparison.h2h.ties}</div>
                     <div className="text-xs text-muted-foreground">Ties</div>
                   </div>
                   <div className="text-xs text-muted-foreground">-</div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-emerald-400">{comparison.h2h.p2Wins}</div>
+                    <div className={`text-2xl font-bold ${comparison.h2h.p2Wins >= comparison.h2h.p1Wins && comparison.h2h.p2Wins > 0 ? "text-emerald-400" : "text-muted-foreground"}`}>{comparison.h2h.p2Wins}</div>
                     <div className="text-xs text-muted-foreground">{p2Name}</div>
                   </div>
                 </div>

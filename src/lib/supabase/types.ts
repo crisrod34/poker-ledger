@@ -54,6 +54,7 @@ export interface LeaderboardEntry {
   player_id: string;
   player_name: string;
   is_regular: boolean;
+  avatar_url: string | null;
   total_profit_loss: number;
   sessions_played: number;
   avg_profit_loss: number;

@@ -14,6 +14,7 @@ export default async function EventsPage() {
       sessions(
         id,
         date,
+        buy_in_amount,
         session_players(profit_loss, buy_ins_count)
       )
     `)
@@ -38,9 +39,9 @@ export default async function EventsPage() {
           {events.map((event) => {
             const sessionCount = event.sessions?.length || 0;
             const totalPot = (event.sessions || []).reduce(
-              (sum: number, s: { session_players: { buy_ins_count: number }[] }) =>
+              (sum: number, s: { buy_in_amount: number; session_players: { buy_ins_count: number }[] }) =>
                 s.session_players.reduce(
-                  (sSum: number, sp: { buy_ins_count: number }) => sSum + sp.buy_ins_count * 20,
+                  (sSum: number, sp: { buy_ins_count: number }) => sSum + sp.buy_ins_count * Number(s.buy_in_amount),
                   sum
                 ),
               0

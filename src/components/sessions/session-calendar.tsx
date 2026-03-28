@@ -110,7 +110,7 @@ export function SessionCalendar({ sessions }: Props) {
             return (
               <div
                 key={index}
-                className={`min-h-[80px] sm:min-h-[100px] border-b border-r border-border p-1.5 transition-colors ${
+                className={`min-h-[90px] sm:min-h-[100px] border-b border-r border-border p-1.5 transition-colors ${
                   !inMonth ? "bg-muted/20" : hasSession ? "bg-card cursor-pointer hover:bg-emerald-500/5" : ""
                 }`}
                 onClick={() => {

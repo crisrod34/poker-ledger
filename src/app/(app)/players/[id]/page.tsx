@@ -77,7 +77,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
             {streakType && <StreakBadge type={streakType} count={currentStreak} />}
           </div>
           <p className="text-muted-foreground text-sm mt-0.5">
-            {player.is_regular ? "Regular" : "Guest"}
+            {player.is_regular ? "Pibardo" : "Guest"}
           </p>
         </div>
       </div>

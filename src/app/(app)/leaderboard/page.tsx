@@ -13,7 +13,7 @@ async function getLeaderboard(filter?: string): Promise<LeaderboardEntry[]> {
     .select(`
       player_id,
       profit_loss,
-      players!inner(id, name, is_regular),
+      players!inner(id, name, is_regular, avatar_url),
       sessions!inner(date, status)
     `)
     .order("date", { referencedTable: "sessions", ascending: true });
@@ -23,11 +23,12 @@ async function getLeaderboard(filter?: string): Promise<LeaderboardEntry[]> {
   const playerMap = new Map<string, {
     name: string;
     is_regular: boolean;
+    avatar_url: string | null;
     profits: number[];
   }>();
 
   for (const sp of sessionPlayers) {
-    const player = sp.players as unknown as { id: string; name: string; is_regular: boolean };
+    const player = sp.players as unknown as { id: string; name: string; is_regular: boolean; avatar_url: string | null };
     const session = sp.sessions as unknown as { date: string; status: string };
     const pl = Number(sp.profit_loss);
 
@@ -45,6 +46,7 @@ async function getLeaderboard(filter?: string): Promise<LeaderboardEntry[]> {
       playerMap.set(player.id, {
         name: player.name,
         is_regular: player.is_regular,
+        avatar_url: player.avatar_url,
         profits: [pl],
       });
     }
@@ -60,6 +62,7 @@ async function getLeaderboard(filter?: string): Promise<LeaderboardEntry[]> {
       player_id: playerId,
       player_name: data.name,
       is_regular: data.is_regular,
+      avatar_url: data.avatar_url,
       total_profit_loss: total,
       sessions_played: sessions,
       avg_profit_loss: sessions > 0 ? total / sessions : 0,
@@ -84,7 +87,7 @@ export default async function LeaderboardPage({
   const leaderboard = await getLeaderboard(activeFilter);
 
   const subtitle = activeFilter === "regulars"
-    ? "Regulars only"
+    ? "Pibardos only"
     : activeFilter === "guests"
       ? "Guests only"
       : "All-time poker standings";

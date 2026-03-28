@@ -17,16 +17,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { REGULAR_PLAYERS } from "@/lib/constants";
 import { useRouter } from "next/navigation";
 
 interface Props {
   sessionId: string;
   leaderName: string;
   isOpen?: boolean;
+  playerNames: string[];
 }
 
-export function SessionEditButton({ sessionId, leaderName, isOpen }: Props) {
+export function SessionEditButton({ sessionId, leaderName, isOpen, playerNames }: Props) {
   const [open, setOpen] = useState(false);
   const [selectedName, setSelectedName] = useState("");
   const [error, setError] = useState(false);
@@ -60,12 +60,12 @@ export function SessionEditButton({ sessionId, leaderName, isOpen }: Props) {
           </DialogHeader>
 
           <div className="space-y-3">
-            <Select value={selectedName || undefined} onValueChange={(v) => { setSelectedName(v || ""); setError(false); }}>
+            <Select value={selectedName} onValueChange={(v) => { setSelectedName(v || ""); setError(false); }}>
               <SelectTrigger>
                 <SelectValue placeholder="Select your name" />
               </SelectTrigger>
               <SelectContent>
-                {REGULAR_PLAYERS.map((name) => (
+                {playerNames.map((name) => (
                   <SelectItem key={name} value={name}>{name}</SelectItem>
                 ))}
               </SelectContent>

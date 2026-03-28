@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
 import { PlayerCard } from "@/components/players/player-card";
+import { ManagePlayers } from "@/components/players/manage-players";
 
 export default async function PlayersPage() {
   const supabase = await createClient();
@@ -30,12 +31,16 @@ export default async function PlayersPage() {
 
   return (
     <>
-      <PageHeader title="Players" subtitle="The poker crew" />
+      <PageHeader
+        title="Players"
+        subtitle="The poker crew"
+        action={<ManagePlayers players={(players || []).map(({ session_players, ...p }) => p)} />}
+      />
 
       {regulars.length > 0 && (
         <div className="mb-8">
           <h2 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
-            Regulars
+            Pibardos
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {regulars.map((player) => {

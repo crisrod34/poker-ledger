@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const FILTERS = [
   { value: "all", label: "All" },
-  { value: "regulars", label: "Regulars" },
+  { value: "regulars", label: "Pibardos" },
   { value: "guests", label: "Guests" },
 ] as const;
 
@@ -15,11 +15,7 @@ export function LeaderboardFilters() {
 
   const handleFilter = (value: string) => {
     const params = new URLSearchParams(searchParams);
-    if (value === "all") {
-      params.delete("filter");
-    } else {
-      params.set("filter", value);
-    }
+    params.set("filter", value);
     router.push(`/leaderboard?${params.toString()}`);
   };
 

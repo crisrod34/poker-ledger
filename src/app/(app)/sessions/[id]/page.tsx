@@ -31,6 +31,14 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
 
   if (!session) notFound();
 
+  const { data: allPlayers } = await supabase
+    .from("players")
+    .select("name, is_regular")
+    .eq("is_regular", true)
+    .order("name");
+
+  const playerNames = (allPlayers || []).map((p) => p.name);
+
   const isOpen = session.status === "open";
 
   const activePlayers = session.session_players
@@ -59,7 +67,7 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
                 Open
               </Badge>
             )}
-            <SessionEditButton sessionId={session.id} leaderName={session.leader_name} isOpen={isOpen} />
+            <SessionEditButton sessionId={session.id} leaderName={session.leader_name} isOpen={isOpen} playerNames={playerNames} />
           </div>
         }
       />
@@ -118,7 +126,7 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
                     {sp.players.name}
                   </Link>
                 </div>
-                <div className="flex items-center gap-6 text-sm">
+                <div className="flex items-center gap-3 sm:gap-6 text-sm">
                   <span className="text-muted-foreground tabular-nums">
                     {sp.buy_ins_count} buy-in{sp.buy_ins_count !== 1 ? "s" : ""}
                     {isOpen && ` (\u20AC${(sp.buy_ins_count * Number(session.buy_in_amount)).toFixed(0)})`}

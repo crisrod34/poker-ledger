@@ -49,6 +49,17 @@ export function LeaderboardTable({ entries }: Props) {
               {/* Rank */}
               <RankBadge rank={index + 1} />
 
+              {/* Avatar */}
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                {entry.avatar_url ? (
+                  <img src={entry.avatar_url} alt={entry.player_name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-xs font-bold text-muted-foreground">
+                    {entry.player_name.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+
               {/* Player info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
