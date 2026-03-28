@@ -23,9 +23,10 @@ import { useRouter } from "next/navigation";
 interface Props {
   sessionId: string;
   leaderName: string;
+  isOpen?: boolean;
 }
 
-export function SessionEditButton({ sessionId, leaderName }: Props) {
+export function SessionEditButton({ sessionId, leaderName, isOpen }: Props) {
   const [open, setOpen] = useState(false);
   const [selectedName, setSelectedName] = useState("");
   const [error, setError] = useState(false);
@@ -33,7 +34,10 @@ export function SessionEditButton({ sessionId, leaderName }: Props) {
 
   const handleConfirm = () => {
     if (selectedName === leaderName) {
-      router.push(`/sessions/${sessionId}/edit`);
+      const url = isOpen
+        ? `/sessions/${sessionId}/edit?complete=true`
+        : `/sessions/${sessionId}/edit`;
+      router.push(url);
     } else {
       setError(true);
     }
@@ -56,7 +60,7 @@ export function SessionEditButton({ sessionId, leaderName }: Props) {
           </DialogHeader>
 
           <div className="space-y-3">
-            <Select value={selectedName} onValueChange={(v) => { setSelectedName(v || ""); setError(false); }}>
+            <Select value={selectedName || undefined} onValueChange={(v) => { setSelectedName(v || ""); setError(false); }}>
               <SelectTrigger>
                 <SelectValue placeholder="Select your name" />
               </SelectTrigger>

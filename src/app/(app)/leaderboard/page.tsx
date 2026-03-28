@@ -1,25 +1,25 @@
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
+import { LeaderboardFilters } from "@/components/leaderboard/leaderboard-filters";
 import type { LeaderboardEntry } from "@/lib/supabase/types";
+import { Suspense } from "react";
 
-async function getLeaderboard(): Promise<LeaderboardEntry[]> {
+async function getLeaderboard(filter?: string): Promise<LeaderboardEntry[]> {
   const supabase = await createClient();
 
-  // Get all session_players with player info and session date for ordering
   const { data: sessionPlayers } = await supabase
     .from("session_players")
     .select(`
       player_id,
       profit_loss,
       players!inner(id, name, is_regular),
-      sessions!inner(date)
+      sessions!inner(date, status)
     `)
     .order("date", { referencedTable: "sessions", ascending: true });
 
   if (!sessionPlayers?.length) return [];
 
-  // Aggregate by player
   const playerMap = new Map<string, {
     name: string;
     is_regular: boolean;
@@ -28,8 +28,15 @@ async function getLeaderboard(): Promise<LeaderboardEntry[]> {
 
   for (const sp of sessionPlayers) {
     const player = sp.players as unknown as { id: string; name: string; is_regular: boolean };
+    const session = sp.sessions as unknown as { date: string; status: string };
     const pl = Number(sp.profit_loss);
-    if (pl === 0) continue; // Skip non-participants
+
+    // Skip non-participants and open sessions
+    if (pl === 0 || session.status === "open") continue;
+
+    // Apply filter
+    if (filter === "regulars" && !player.is_regular) continue;
+    if (filter === "guests" && player.is_regular) continue;
 
     const existing = playerMap.get(player.id);
     if (existing) {
@@ -67,14 +74,30 @@ async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   return entries;
 }
 
-export default async function LeaderboardPage() {
-  const leaderboard = await getLeaderboard();
+export default async function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
+  const { filter } = await searchParams;
+  const leaderboard = await getLeaderboard(filter);
+
+  const subtitle = filter === "regulars"
+    ? "Regulars only"
+    : filter === "guests"
+      ? "Guests only"
+      : "All-time poker standings";
 
   return (
     <>
       <PageHeader
         title="Leaderboard"
-        subtitle="All-time poker standings"
+        subtitle={subtitle}
+        action={
+          <Suspense>
+            <LeaderboardFilters />
+          </Suspense>
+        }
       />
       <LeaderboardTable entries={leaderboard} />
     </>

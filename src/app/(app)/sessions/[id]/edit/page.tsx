@@ -3,8 +3,15 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { SessionForm } from "@/components/sessions/session-form";
 
-export default async function EditSessionPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditSessionPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ complete?: string }>;
+}) {
   const { id } = await params;
+  const { complete } = await searchParams;
   const supabase = await createClient();
 
   const { data: session } = await supabase
@@ -42,12 +49,18 @@ export default async function EditSessionPage({ params }: { params: Promise<{ id
       endBalance: Number(sp.end_balance),
     }));
 
+  const isCompleting = complete === "true" && session.status === "open";
+
   return (
     <>
-      <PageHeader title="Edit Session" subtitle={`${session.location} - ${session.date}`} />
+      <PageHeader
+        title={isCompleting ? "Close Session" : "Edit Session"}
+        subtitle={isCompleting ? "Enter end balances to complete the session" : `${session.location} - ${session.date}`}
+      />
       <SessionForm
         players={players || []}
         events={events || []}
+        mode={isCompleting ? "complete" : undefined}
         editSession={{
           id: session.id,
           date: session.date,
@@ -57,6 +70,7 @@ export default async function EditSessionPage({ params }: { params: Promise<{ id
           bankerName: session.banker_name,
           eventId: session.event_id,
           notes: session.notes,
+          status: session.status,
           players: existingPlayers,
         }}
       />

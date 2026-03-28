@@ -5,6 +5,7 @@ import { formatCurrency } from "@/lib/constants";
 import { format, parseISO } from "date-fns";
 import Link from "next/link";
 import { Calendar, MapPin } from "lucide-react";
+import { EventPhotoGallery } from "@/components/events/event-photo-gallery";
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -12,7 +13,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
   const { data: event } = await supabase
     .from("events")
-    .select("*")
+    .select("*, event_photos(*)")
     .eq("id", id)
     .single();
 
@@ -136,6 +137,9 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           </Link>
         ))}
       </div>
+
+      {/* Event Photos */}
+      <EventPhotoGallery eventId={id} photos={event.event_photos || []} />
     </>
   );
 }

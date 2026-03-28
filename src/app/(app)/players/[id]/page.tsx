@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatsGrid } from "@/components/players/stats-grid";
 import { StreakBadge } from "@/components/players/streak-badge";
+import { AvatarUpload } from "@/components/players/avatar-upload";
 import { formatCurrency } from "@/lib/constants";
 import { format, parseISO } from "date-fns";
 import Link from "next/link";
@@ -64,15 +65,22 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
   return (
     <>
-      <PageHeader
-        title={player.name}
-        subtitle={player.is_regular ? "Regular" : "Guest"}
-        action={
-          streakType && (
-            <StreakBadge type={streakType} count={currentStreak} />
-          )
-        }
-      />
+      <div className="flex items-center gap-4 mb-6 md:mb-8">
+        <AvatarUpload
+          playerId={player.id}
+          playerName={player.name}
+          currentAvatarUrl={player.avatar_url}
+        />
+        <div className="flex-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold tracking-tight">{player.name}</h1>
+            {streakType && <StreakBadge type={streakType} count={currentStreak} />}
+          </div>
+          <p className="text-muted-foreground text-sm mt-0.5">
+            {player.is_regular ? "Regular" : "Guest"}
+          </p>
+        </div>
+      </div>
 
       <StatsGrid
         stats={[

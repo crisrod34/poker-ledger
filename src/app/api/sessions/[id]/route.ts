@@ -17,6 +17,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       banker_name: body.banker_name,
       event_id: body.event_id === "none" ? null : body.event_id,
       notes: body.notes,
+      status: body.status || "completed",
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)

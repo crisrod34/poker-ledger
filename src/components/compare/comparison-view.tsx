@@ -89,16 +89,24 @@ export function ComparisonView({ players, allSessionPlayers }: Props) {
     <div className="space-y-6">
       {/* Player selectors */}
       <div className="grid grid-cols-2 gap-4">
-        <Select value={player1Id} onValueChange={(v) => v && setPlayer1Id(v)}>
-          <SelectTrigger><SelectValue placeholder="Select player 1" /></SelectTrigger>
+        <Select value={player1Id || undefined} onValueChange={(v) => v && setPlayer1Id(v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select player 1">
+              {players.find((p) => p.id === player1Id)?.name}
+            </SelectValue>
+          </SelectTrigger>
           <SelectContent>
             {players.filter((p) => p.id !== player2Id).map((p) => (
               <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Select value={player2Id} onValueChange={(v) => v && setPlayer2Id(v)}>
-          <SelectTrigger><SelectValue placeholder="Select player 2" /></SelectTrigger>
+        <Select value={player2Id || undefined} onValueChange={(v) => v && setPlayer2Id(v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select player 2">
+              {players.find((p) => p.id === player2Id)?.name}
+            </SelectValue>
+          </SelectTrigger>
           <SelectContent>
             {players.filter((p) => p.id !== player1Id).map((p) => (
               <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>

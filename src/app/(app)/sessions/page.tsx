@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
-import { SessionCard } from "@/components/sessions/session-card";
+import { SessionCalendar } from "@/components/sessions/session-calendar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
@@ -21,6 +21,37 @@ export default async function SessionsPage() {
       events(name)
     `)
     .order("date", { ascending: false });
+
+  const calendarSessions = (sessions || []).map((session) => {
+    const players = (session.session_players || []).filter(
+      (sp: { buy_ins_count: number; profit_loss: number }) =>
+        sp.buy_ins_count > 0 || sp.profit_loss !== 0
+    );
+    const topWinner = players.reduce(
+      (best: { name: string; pl: number } | null, sp: { profit_loss: number; players: { name: string } }) => {
+        const pl = Number(sp.profit_loss);
+        if (!best || pl > best.pl) return { name: sp.players.name, pl };
+        return best;
+      },
+      null as { name: string; pl: number } | null
+    );
+    const totalPot = players.reduce(
+      (sum: number, sp: { buy_ins_count: number }) =>
+        sum + sp.buy_ins_count * Number(session.buy_in_amount),
+      0
+    );
+
+    return {
+      id: session.id,
+      date: session.date,
+      location: session.location,
+      status: session.status || "completed",
+      buy_in_amount: Number(session.buy_in_amount),
+      topWinner,
+      playerCount: players.length,
+      totalPot,
+    };
+  });
 
   return (
     <>
@@ -43,39 +74,7 @@ export default async function SessionsPage() {
           <p className="text-sm mt-1">Create your first poker session</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {sessions.map((session, index) => {
-            const players = (session.session_players || []).filter(
-              (sp: { buy_ins_count: number; profit_loss: number }) =>
-                sp.buy_ins_count > 0 || sp.profit_loss !== 0
-            );
-            const topWinner = players.reduce(
-              (best: { name: string; pl: number } | null, sp: { profit_loss: number; players: { name: string } }) => {
-                const pl = Number(sp.profit_loss);
-                if (!best || pl > best.pl) return { name: sp.players.name, pl };
-                return best;
-              },
-              null as { name: string; pl: number } | null
-            );
-            const totalPot = players.reduce(
-              (sum: number, sp: { buy_ins_count: number }) =>
-                sum + sp.buy_ins_count * Number(session.buy_in_amount),
-              0
-            );
-
-            return (
-              <SessionCard
-                key={session.id}
-                session={session}
-                topWinner={topWinner}
-                totalPot={totalPot}
-                playerCount={players.length}
-                eventName={session.events?.name}
-                index={index}
-              />
-            );
-          })}
-        </div>
+        <SessionCalendar sessions={calendarSessions} />
       )}
     </>
   );

@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
       banker_name: body.banker_name,
       event_id: body.event_id === "none" ? null : body.event_id,
       notes: body.notes,
+      status: body.status || "completed",
     })
     .select()
     .single();

@@ -15,14 +15,15 @@ interface Props {
   sessionId: string;
   bankerName: string;
   players: PlayerPayment[];
+  isOpen?: boolean;
 }
 
-export function PaymentChecklist({ sessionId, bankerName, players }: Props) {
+export function PaymentChecklist({ sessionId, bankerName, players, isOpen }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
 
-  // Players who owe money (negative P&L means they lost, but the banker collects buy-ins)
-  // Actually everyone needs to settle with the banker
+  // For open sessions: everyone except banker needs to pay buy-in
+  // For completed sessions: everyone except banker needs to settle
   const playersToSettle = players.filter((p) => p.name !== bankerName);
 
   if (playersToSettle.length === 0) return null;
@@ -52,7 +53,9 @@ export function PaymentChecklist({ sessionId, bankerName, players }: Props) {
     <div className="rounded-xl border border-border bg-card/50 overflow-hidden mb-6">
       <div className="px-4 py-3 border-b border-border flex items-center gap-2">
         <Landmark className="w-4 h-4 text-muted-foreground" />
-        <h2 className="text-sm font-semibold">Payment Status</h2>
+        <h2 className="text-sm font-semibold">
+          {isOpen ? "Buy-in Payments" : "Payment Status"}
+        </h2>
         <span className="text-xs text-muted-foreground ml-auto">
           Banker: {bankerName}
         </span>
@@ -63,13 +66,15 @@ export function PaymentChecklist({ sessionId, bankerName, players }: Props) {
           <div key={player.id} className="flex items-center justify-between px-4 py-2.5">
             <div className="flex items-center gap-2">
               <span className="text-sm">{player.name}</span>
-              <span
-                className={`text-xs tabular-nums ${
-                  player.profitLoss >= 0 ? "text-emerald-400" : "text-red-400"
-                }`}
-              >
-                {player.profitLoss >= 0 ? "+" : ""}{"\u20AC"}{player.profitLoss.toFixed(2)}
-              </span>
+              {!isOpen && (
+                <span
+                  className={`text-xs tabular-nums ${
+                    player.profitLoss >= 0 ? "text-emerald-400" : "text-red-400"
+                  }`}
+                >
+                  {player.profitLoss >= 0 ? "+" : ""}{"\u20AC"}{player.profitLoss.toFixed(2)}
+                </span>
+              )}
             </div>
             <button
               onClick={() => togglePayment(player.id, player.paymentVerified)}
@@ -101,7 +106,9 @@ export function PaymentChecklist({ sessionId, bankerName, players }: Props) {
 
       {allVerified && (
         <div className="px-4 py-2 bg-emerald-500/5 border-t border-emerald-500/10 text-center">
-          <span className="text-xs text-emerald-400 font-medium">All payments settled</span>
+          <span className="text-xs text-emerald-400 font-medium">
+            {isOpen ? "All buy-ins collected" : "All payments settled"}
+          </span>
         </div>
       )}
     </div>

@@ -7,7 +7,9 @@ import { formatCurrency } from "@/lib/constants";
 import { PaymentChecklist } from "@/components/sessions/payment-checklist";
 import { PhotoGallery } from "@/components/sessions/photo-gallery";
 import { SessionEditButton } from "@/components/sessions/session-edit-button";
+import { OpenSessionBanner } from "@/components/sessions/open-session-banner";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 export default async function SessionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -29,9 +31,11 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
 
   if (!session) notFound();
 
+  const isOpen = session.status === "open";
+
   const activePlayers = session.session_players
     .filter((sp: { buy_ins_count: number; profit_loss: number }) =>
-      sp.buy_ins_count > 0 || sp.profit_loss !== 0
+      sp.buy_ins_count > 0 || Number(sp.profit_loss) !== 0
     )
     .sort((a: { profit_loss: number }, b: { profit_loss: number }) =>
       Number(b.profit_loss) - Number(a.profit_loss)
@@ -48,8 +52,24 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
       <PageHeader
         title={session.location}
         subtitle={format(parseISO(session.date), "EEEE, MMMM d, yyyy")}
-        action={<SessionEditButton sessionId={session.id} leaderName={session.leader_name} />}
+        action={
+          <div className="flex items-center gap-2">
+            {isOpen && (
+              <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/10">
+                Open
+              </Badge>
+            )}
+            <SessionEditButton sessionId={session.id} leaderName={session.leader_name} isOpen={isOpen} />
+          </div>
+        }
       />
+
+      {isOpen && (
+        <OpenSessionBanner
+          sessionId={session.id}
+          leaderName={session.leader_name}
+        />
+      )}
 
       {/* Session info */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -69,12 +89,12 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
         </Link>
       )}
 
-      {/* Results table */}
+      {/* Results table (or player list for open sessions) */}
       <div className="rounded-xl border border-border bg-card/50 overflow-hidden mb-6">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-          <h2 className="text-sm font-semibold">Results</h2>
+          <h2 className="text-sm font-semibold">{isOpen ? "Players" : "Results"}</h2>
           <span className="text-xs text-muted-foreground">
-            Pot: {"\u20AC"}{totalPot.toFixed(0)} | Buy-in: {"\u20AC"}{Number(session.buy_in_amount).toFixed(0)}
+            {isOpen ? `${activePlayers.length} players` : `Pot: \u20AC${totalPot.toFixed(0)} | Buy-in: \u20AC${Number(session.buy_in_amount).toFixed(0)}`}
           </span>
         </div>
         <div className="divide-y divide-border">
@@ -84,7 +104,7 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
               <div
                 key={sp.id}
                 className={`flex items-center justify-between px-4 py-3 ${
-                  index === 0 && pl > 0 ? "bg-emerald-500/5" : ""
+                  !isOpen && index === 0 && pl > 0 ? "bg-emerald-500/5" : ""
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -99,19 +119,24 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
                   </Link>
                 </div>
                 <div className="flex items-center gap-6 text-sm">
-                  <span className="text-muted-foreground tabular-nums hidden sm:block">
+                  <span className="text-muted-foreground tabular-nums">
                     {sp.buy_ins_count} buy-in{sp.buy_ins_count !== 1 ? "s" : ""}
+                    {isOpen && ` (\u20AC${(sp.buy_ins_count * Number(session.buy_in_amount)).toFixed(0)})`}
                   </span>
-                  <span className="text-muted-foreground tabular-nums hidden sm:block">
-                    {"\u20AC"}{Number(sp.end_balance).toFixed(2)}
-                  </span>
-                  <span
-                    className={`font-bold tabular-nums min-w-[80px] text-right ${
-                      pl > 0 ? "text-emerald-400" : pl < 0 ? "text-red-400" : "text-muted-foreground"
-                    }`}
-                  >
-                    {formatCurrency(pl)}
-                  </span>
+                  {!isOpen && (
+                    <>
+                      <span className="text-muted-foreground tabular-nums hidden sm:block">
+                        {"\u20AC"}{Number(sp.end_balance).toFixed(2)}
+                      </span>
+                      <span
+                        className={`font-bold tabular-nums min-w-[80px] text-right ${
+                          pl > 0 ? "text-emerald-400" : pl < 0 ? "text-red-400" : "text-muted-foreground"
+                        }`}
+                      >
+                        {formatCurrency(pl)}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             );
@@ -129,6 +154,7 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
           profitLoss: Number(sp.profit_loss),
           paymentVerified: sp.payment_verified,
         }))}
+        isOpen={isOpen}
       />
 
       {/* Photos */}
