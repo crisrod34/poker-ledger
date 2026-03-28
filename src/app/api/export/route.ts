@@ -53,7 +53,7 @@ export async function GET() {
   return new NextResponse(csv, {
     headers: {
       "Content-Type": "text/csv",
-      "Content-Disposition": `attachment; filename="poker-ledger-export.csv"`,
+      "Content-Disposition": `attachment; filename="pib-poker-export.csv"`,
     },
   });
 }

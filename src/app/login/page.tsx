@@ -58,7 +58,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center glow-emerald-sm">
             <span className="text-3xl">♠</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Poker Ledger</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Pib Poker</h1>
           <p className="text-muted-foreground text-sm">Enter password to continue</p>
         </div>
 

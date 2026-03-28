@@ -4,7 +4,7 @@ import { createHash } from "crypto";
 export async function POST(request: NextRequest) {
   const { pin } = await request.json();
   const correctPin = process.env.ACCESS_PIN;
-  const secret = process.env.PIN_SECRET || "poker-ledger-default";
+  const secret = process.env.PIN_SECRET || "pib-poker-default";
 
   if (!pin || pin !== correctPin) {
     return NextResponse.json({ error: "Invalid PIN" }, { status: 401 });
