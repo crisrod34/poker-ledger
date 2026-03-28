@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pib Poker",
+  title: "Pibardos Poker",
   description: "Track your poker group standings, sessions, and stats",
 };
 
