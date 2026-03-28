@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, MapPin, Users, Crown, Sparkles, PlayCircle } from "lucide-react";
+import { Crown, PlayCircle, Sparkles, Users } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCurrency } from "@/lib/constants";
 import Link from "next/link";
@@ -18,6 +18,7 @@ interface Props {
 
 export function SessionCard({ session, topWinner, totalPot, playerCount, eventName, index }: Props) {
   const isOpen = session.status === "open";
+  const date = parseISO(session.date);
 
   return (
     <motion.div
@@ -26,48 +27,42 @@ export function SessionCard({ session, topWinner, totalPot, playerCount, eventNa
       transition={{ delay: index * 0.04, duration: 0.3 }}
     >
       <Link href={`/sessions/${session.id}`}>
-        <div className={`group relative p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+        <div className={`group relative px-3.5 py-3 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
           isOpen
             ? "border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10"
             : "border-border bg-card/50 hover:bg-card hover:border-emerald-500/15"
         }`}>
-          <div className="flex items-start justify-between gap-3">
-            <div className="space-y-2 flex-1 min-w-0">
-              {/* Date & Location */}
-              <div className="flex items-center gap-3 text-sm">
+          <div className="flex items-center justify-between gap-3">
+            {/* Left: date + location + stats */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 text-sm">
                 {isOpen && (
-                  <span className="flex items-center gap-1 text-amber-400 text-xs font-medium">
+                  <span className="flex items-center gap-1 text-amber-400 text-xs font-medium shrink-0">
                     <PlayCircle className="w-3.5 h-3.5" />
                     Open
                   </span>
                 )}
-                <span className="flex items-center gap-1.5 text-muted-foreground">
-                  <Calendar className="w-3.5 h-3.5" />
-                  {format(parseISO(session.date), "MMM d, yyyy")}
+                <span className="font-medium truncate">
+                  <span className="sm:hidden">{format(date, "MMM d")}</span>
+                  <span className="hidden sm:inline">{format(date, "MMM d, yyyy")}</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-muted-foreground">
-                  <MapPin className="w-3.5 h-3.5" />
-                  <span className="truncate">{session.location}</span>
-                </span>
+                <span className="text-muted-foreground/40">·</span>
+                <span className="text-muted-foreground truncate">{session.location}</span>
               </div>
-
-              {/* Stats row */}
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Users className="w-3 h-3" />
-                  {playerCount} players
-                </span>
-                <span>Pot: {"\u20AC"}{totalPot.toFixed(0)}</span>
+              <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1"><Users className="w-3 h-3" />{playerCount}</span>
+                <span>€{totalPot.toFixed(0)}</span>
+                <span className="hidden sm:inline">{format(date, "yyyy")}</span>
                 {eventName && (
-                  <span className="flex items-center gap-1 text-emerald-400/70">
-                    <Sparkles className="w-3 h-3" />
+                  <span className="flex items-center gap-1 text-emerald-400/70 truncate">
+                    <Sparkles className="w-3 h-3 shrink-0" />
                     {eventName}
                   </span>
                 )}
               </div>
             </div>
 
-            {/* Top winner (only for completed) */}
+            {/* Right: top winner */}
             {!isOpen && topWinner && topWinner.pl > 0 && (
               <div className="text-right shrink-0">
                 <div className="flex items-center gap-1 text-xs text-yellow-400/70">

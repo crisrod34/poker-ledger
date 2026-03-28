@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
-import { SessionCalendar } from "@/components/sessions/session-calendar";
+import { SessionCard } from "@/components/sessions/session-card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
@@ -22,7 +22,7 @@ export default async function SessionsPage() {
     `)
     .order("date", { ascending: false });
 
-  const calendarSessions = (sessions || []).map((session) => {
+  const sessionItems = (sessions || []).map((session) => {
     const players = (session.session_players || []).filter(
       (sp: { buy_ins_count: number; profit_loss: number }) =>
         sp.buy_ins_count > 0 || sp.profit_loss !== 0
@@ -42,14 +42,11 @@ export default async function SessionsPage() {
     );
 
     return {
-      id: session.id,
-      date: session.date,
-      location: session.location,
-      status: session.status || "completed",
-      buy_in_amount: Number(session.buy_in_amount),
+      session,
       topWinner,
-      playerCount: players.length,
       totalPot,
+      playerCount: players.length,
+      eventName: session.events?.name,
     };
   });
 
@@ -74,7 +71,19 @@ export default async function SessionsPage() {
           <p className="text-sm mt-1">Create your first poker session</p>
         </div>
       ) : (
-        <SessionCalendar sessions={calendarSessions} />
+        <div className="space-y-3">
+          {sessionItems.map((item, index) => (
+            <SessionCard
+              key={item.session.id}
+              session={item.session}
+              topWinner={item.topWinner}
+              totalPot={item.totalPot}
+              playerCount={item.playerCount}
+              eventName={item.eventName}
+              index={index}
+            />
+          ))}
+        </div>
       )}
     </>
   );
